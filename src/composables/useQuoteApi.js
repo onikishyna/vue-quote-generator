@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue';
 
 export function useQuoteApi() {
-  const quote = ref(null);
+  const quote = ref({ content: '', author: '' });
   const isLoading = ref(true);
   const error = ref(null);
   const quoteHistory = ref(
@@ -25,7 +25,7 @@ export function useQuoteApi() {
 
       const data = await response.json();
       quote.value = {
-        content: data.quote,
+        content: data.quote.replace(/^['"]|['"]$/g, ''),
         author: data.author,
       };
       
@@ -52,7 +52,26 @@ export function useQuoteApi() {
 
   function deleteFromHistory(index) {
     quoteHistory.value.splice(index, 1);
+  };
+
+  function shareQuoteOnTwitter(quoteToShare = quote.value) {
+    try {
+      const tweetText = `"${quoteToShare.content}" — ${quoteToShare.author}`;
+
+      if (tweetText.length > 280) {
+        throw new Error('Quote exceeds Twitter character limit');
+      }
+
+      const encodedText = encodeURIComponent(tweetText);
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}`;
+      
+      window.open(twitterUrl, '_blank');
+    } catch (error) {
+      console.error('Error sharing to Twitter:', error);
+      error.value = 'Failed to share quote on Twitter';
+    }
   }
+
 
   return {
     quote,
@@ -61,6 +80,7 @@ export function useQuoteApi() {
     quoteHistory,
     fetchFirstQuote,
     fetchNewQuote,
-    deleteFromHistory
+    deleteFromHistory,
+    shareQuoteOnTwitter
   };
 }
