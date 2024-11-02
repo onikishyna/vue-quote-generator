@@ -8,6 +8,7 @@ export default {
       },
       fontSize: {
         'main': '18px',
+        'xs': '14px',
       },
       keyframes: {
         beat: {
@@ -17,6 +18,12 @@ export default {
       },
       animation: {
         beat: 'beat 0.5s infinite',
+      },
+      screens: {
+        'xs': '340px', 
+      },
+      minWidth: {
+        '72': '18rem', 
       },
     },
   },

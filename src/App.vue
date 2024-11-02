@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import QuoteCard from "./components/QuoteCard.vue";
 import QuoteHistory from "./components/QuoteHistory.vue";
 import { useQuoteApi } from "./composables/useQuoteApi";
@@ -17,21 +17,28 @@ const {
 
 function copyToClipboard() {
   const text = `"${quote.value.content}" — ${quote.value.author}`;
-  navigator.clipboard
-    .writeText(text)
-    .then(() => alert("Quote successfully copied"));
+  navigator.clipboard.writeText(text);
 }
+
+const containerClasses = computed(() => {
+  const isCenteringNeeded = quoteHistory.value.length === 0;
+  return [
+    "bg-emerald-800 min-h-screen flex flex-col items-center text-center",
+    isCenteringNeeded ? "justify-center" : "",
+    "xs:text-xs md:text-main",
+  ];
+});
 
 onMounted(() => fetchFirstQuote());
 </script>
 
 <template>
   <div
-    class="bg-emerald-800 h-screen flex flex-col justify-center items-center text-center text-main"
+    :class="containerClasses"
   >
     <div
       :class="
-        quoteHistory.length > 0 ? 'mt-56 mb-10 mr-20 ml-20' : 'mr-20 ml-20'
+        quoteHistory.length > 0 ? 'xs:mt-20 md:mt-60 lg:mt-40 mb-10 mr-20 ml-20' : 'mr-20 ml-20'
       "
     >
       <QuoteCard

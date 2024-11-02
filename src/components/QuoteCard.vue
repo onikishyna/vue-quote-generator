@@ -1,6 +1,13 @@
 <script setup>
+import { ref } from 'vue';
 import { defineProps, defineEmits } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import "tippy.js/dist/tippy.css";
+import { directive } from "vue-tippy";
+
+const vTippy = directive;
+const tooltipText = ref('Copy this quote');
+const emit = defineEmits(["fetchNewQuote", "copyToClipboard"]);
 
 const props = defineProps({
   quote: {
@@ -17,15 +24,23 @@ const props = defineProps({
   },
   shareQuoteOnTwitter: {
     type: Function,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const emit = defineEmits(["fetchNewQuote", "copyToClipboard"]);
+const handleCopy = async () => {
+  emit('copyToClipboard');
+  tooltipText.value = 'Copied!';
+  
+  setTimeout(() => {
+    tooltipText.value = 'Copy this quote';
+  }, 5000);
+};
+
 </script>
 
 <template>
-  <div class="bg-white p-6 rounded-lg shadow-md min-w-96 max-w-2xl">
+  <div class="bg-amber-50 p-6 rounded-lg shadow-md xs:min-w-72 min-w-96 max-w-2xl">
     <h2 class="font-bold text-2xl text-green-900">Quote of the day</h2>
     <div v-if="isLoading" class="flex justify-center items-center h-40">
       <div
@@ -55,21 +70,35 @@ const emit = defineEmits(["fetchNewQuote", "copyToClipboard"]);
       <hr class="flex-grow border-t border-gray-300" />
       <div class="flex justify-between items-center">
         <div>
-          <font-awesome-icon
-            @click="emit('copyToClipboard')"
-            icon="fa-solid fa-copy"
-            size="xl"
-            style="color: #07503a"
-            class="cursor-pointer hover:animate-beat active:animate-beat"
-          />
+          <button
+           @click="handleCopy"
+            v-tippy="{
+              content: tooltipText,
+              placement: 'top',
+            }"
+          >
+            <font-awesome-icon
+              icon="fa-solid fa-copy"
+              size="xl"
+              style="color: #07503a"
+              class="cursor-pointer hover:animate-beat active:animate-beat"
+            />
+          </button>
           &nbsp;
-          <font-awesome-icon
-            icon="fa-brands fa-square-twitter"
-            size="xl"
-            style="color: #07503a"
+          <button
             @click="shareQuoteOnTwitter()"
-            class="cursor-pointer hover:animate-beat active:animate-beat"
-          />
+            v-tippy="{
+              content: 'Share this quote on Twitter',
+              placement: 'top',
+            }"
+          >
+            <font-awesome-icon
+              icon="fa-brands fa-square-twitter"
+              size="xl"
+              style="color: #07503a"
+              class="cursor-pointer hover:animate-beat active:animate-beat"
+            />
+          </button>
         </div>
         <button
           @click="emit('fetchNewQuote')"
